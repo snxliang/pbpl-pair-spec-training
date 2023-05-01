@@ -15,8 +15,8 @@ from data import train_hits, train_spectra, test_hits, test_spectra
 #)
 
 model = keras.Sequential()
-model.add(layers.Dense(64, input_shape=(128*num_shots,)))
-model.add(layers.Dense(64*num_shots))
+model.add(layers.Dense(64, input_shape=(128*num_shots,))) # make input shape (128, num_shots)
+model.add(layers.Dense(64*num_shots)) # should just be 64
 
 model.summary()
 

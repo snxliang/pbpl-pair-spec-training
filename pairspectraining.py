@@ -22,7 +22,6 @@ e_bins = np.indices((1,64))
 gamma_dist_pred_and_plot(e_bins[1][0])
 
 plot.show()
-print(num_of_training_cases)
 quit()
 
 # Regarding the last code block, if you see an indexing error involving the variable arb_gamma_distribution, rerun the block 1-2 more times and the error should be resolved. This is the result of the order in which the variables are loaded.

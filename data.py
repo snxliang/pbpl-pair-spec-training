@@ -8,8 +8,21 @@
 import tensorflow as tf
 import numpy as np
 import h5py
+import csv
 
 from constants import num_shots, num_of_training_cases, detector_bin_count, twopi, MeV, GeV, detection_factor, model_correction_factor, code_directory_path
+
+# Toggle this to use saved data instead of creating new data
+toggle = 0
+
+if toggle:
+    with open(code_directory_path + "train_hits.csv") as train_hits:
+
+    train_hits = tf.convert_to_tensor(train_hits, dtype=float)
+    train_spectra = tf.convert_to_tensor(train_spectra, dtype=float)
+    test_hits = tf.convert_to_tensor(test_hits, dtype=float)
+    test_spectra = tf.convert_to_tensor(test_spectra, dtype=float)
+    quit()
 
 # Loading the data
 f = h5py.File(code_directory_path + "R.h5","r")
