@@ -138,7 +138,7 @@ def gamma_dist_pred_and_plot(energy_bin, dist = np.zeros(shape=(1,64))):
 	arb_gamma_distrbution = np.zeros(shape=(1,64))
 
 	# if dist not specified, create random dist instead
-	if (np.array_equal(dist,arb_gamma_distrbution)):
+	if (np.array_equal(dist, arb_gamma_distrbution)):
 		for i in range(0, len(energy_bin)):
 			#Decreasing Sigmoid: 1e11*(1 - 1/(1+np.exp(-((i+1)/8 - 4)))), 1e11*(1 - 1/(1+np.exp(-((i+0)/8 - 4))))
 			#Exponential: 1e10*np.exp(i/64), 1e10*np.exp((i+1)/64)
@@ -151,14 +151,22 @@ def gamma_dist_pred_and_plot(energy_bin, dist = np.zeros(shape=(1,64))):
 
 	# Calculating the simulated spectrum by multiplying the distribution with the R matrix
 	y_experiment = np.dot(arb_gamma_distrbution[0], R)
+	y_experiment = [y_experiment]
+	y_experiment_temp = y_experiment
+	for i in range(1, num_shots):
+		y_experiment = np.concatenate((y_experiment, y_experiment_temp), axis=0)
+
+	print("y_experiment.shape: ", y_experiment.shape)
+	y_experiment = np.swapaxes(y_experiment, 0, 1)
+	print("y_experiment.shape: ", y_experiment.shape)
 
 	# Adapting for multishot
-	y_experiment_64 = y_experiment
-	arb_gamma_distrbution_64 = arb_gamma_distrbution
+	#y_experiment_64 = y_experiment
+	#arb_gamma_distrbution_64 = arb_gamma_distrbution
 
-	for i in range(1,num_shots):
-		y_experiment = np.concatenate((y_experiment, y_experiment_64))
-		arb_gamma_distrbution = np.concatenate((arb_gamma_distrbution, arb_gamma_distrbution_64), axis=1)
+	#for i in range(1,num_shots):
+	#	y_experiment = np.concatenate((y_experiment, y_experiment_64))
+	#	arb_gamma_distrbution = np.concatenate((arb_gamma_distrbution, arb_gamma_distrbution_64), axis=1)
 
 	# Applying the ML model to reconstruct the gamma distribution
 	output = model(tf.convert_to_tensor([y_experiment]))
@@ -187,8 +195,8 @@ def gamma_dist_pred_and_plot(energy_bin, dist = np.zeros(shape=(1,64))):
 	gamma_dist_plot(x*scale_factor, arb_gamma_distrbution[0])
 
 def gamma_dist_plot(prediction, true):
-	x = range(0, 64*num_shots)
-	plot.figure().set_figwidth(6.4*num_shots)
+	x = range(0, 64)
+	plot.figure().set_figwidth(6.4)
 	#qr_guess = recover_energy_dist(R, np.dot(prediction, R))
 	plot.step(x, prediction, label = "Model based prediction")
 	#plot.plot(qr_guess[0], label = "QR based prediction")

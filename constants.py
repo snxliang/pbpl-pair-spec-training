@@ -5,7 +5,7 @@ code_directory_path = "./data/"
 
 #Declaring constants
 num_shots = 2
-num_of_training_cases = 500
+num_of_training_cases = 10
 detector_bin_count = 128
 twopi = 2*(np.pi)
 MeV = 1.602176565e-13

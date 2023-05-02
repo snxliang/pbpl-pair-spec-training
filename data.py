@@ -12,17 +12,6 @@ import csv
 
 from constants import num_shots, num_of_training_cases, detector_bin_count, twopi, MeV, GeV, detection_factor, model_correction_factor, code_directory_path
 
-# Toggle this to use saved data instead of creating new data
-toggle = 0
-
-if toggle:
-    with open(code_directory_path + "train_hits.csv") as train_hits:
-        train_hits = tf.convert_to_tensor(train_hits, dtype=float)
-        train_spectra = tf.convert_to_tensor(train_spectra, dtype=float)
-        test_hits = tf.convert_to_tensor(test_hits, dtype=float)
-        test_spectra = tf.convert_to_tensor(test_spectra, dtype=float)
-        quit()
-
 # Loading the data
 f = h5py.File(code_directory_path + "R.h5","r")
 data = f["hits"]    # shape (64, 128, 1)
@@ -89,15 +78,20 @@ for i in range(0, test_cases):
 	test_spectra = np.concatenate((test_spectra, arb_gamma_distrbution))
 
 # Adapting data for num_shots shots
-train_hits_64 = train_hits
-train_spectra_64 = train_spectra
-test_hits_64 = test_hits
-test_spectra_64 = test_spectra
+# *_hits.shape = (128, num_shots); *_spectra.shape = (64,)
+print(train_hits.shape, train_spectra.shape, test_hits.shape, test_spectra.shape)
+train_hits = [train_hits]
+test_hits = [test_hits]
+train_hits_temp = train_hits
+test_hits_temp = test_hits
 for i in range(1, num_shots):
-    train_hits = np.concatenate((train_hits, train_hits_64), axis=1)
-    train_spectra = np.concatenate((train_spectra, train_spectra_64), axis=1)
-    test_spectra = np.concatenate((test_spectra, test_spectra_64), axis=1)
-    test_hits = np.concatenate((test_hits, test_hits_64), axis=1)
+    train_hits = np.concatenate((train_hits, train_hits_temp), axis=0)
+    test_hits = np.concatenate((test_hits, test_hits_temp), axis=0)
+train_hits = np.swapaxes(train_hits, 0, 1)
+train_hits = np.swapaxes(train_hits, 1, 2)
+test_hits = np.swapaxes(test_hits, 0, 1)
+test_hits = np.swapaxes(test_hits, 1, 2)
+print(train_hits.shape, train_spectra.shape, test_hits.shape, test_spectra.shape)
 
 # Converting the arrays into formats the model can process
 train_hits = tf.convert_to_tensor(train_hits, dtype=float)
