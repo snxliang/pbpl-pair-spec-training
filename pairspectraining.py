@@ -1,3 +1,6 @@
+# plot photon density (1/GeV) against energy (GeV)
+# change shots
+
 # Importing relevant libraries
 import tensorflow as tf
 import numpy as np
@@ -19,7 +22,13 @@ from model import model
 
 # Use model to predict and plot from random data
 e_bins = np.indices((1,64))
-gamma_dist_pred_and_plot(e_bins[1][0])
+
+if 0:
+    detectors = range(0, 128)
+    for i in range (0, 63):
+        plot.step(detectors, train_hits[i,:,2])
+else:
+    gamma_dist_pred_and_plot(e_bins[1][0])
 
 plot.show()
 quit()

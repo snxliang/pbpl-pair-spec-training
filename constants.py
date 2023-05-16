@@ -4,8 +4,8 @@ import numpy as np
 code_directory_path = "./data/"
 
 #Declaring constants
-num_shots = 2
-num_of_training_cases = 10
+num_shots = 3
+num_of_training_cases = 0
 detector_bin_count = 128
 twopi = 2*(np.pi)
 MeV = 1.602176565e-13
