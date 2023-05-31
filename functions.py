@@ -156,17 +156,7 @@ def gamma_dist_pred_and_plot(energy_bin, dist = np.zeros(shape=(1,64))):
 	for i in range(1, num_shots):
 		y_experiment = np.concatenate((y_experiment, y_experiment_temp), axis=0)
 
-	print("y_experiment.shape: ", y_experiment.shape)
 	y_experiment = np.swapaxes(y_experiment, 0, 1)
-	print("y_experiment.shape: ", y_experiment.shape)
-
-	# Adapting for multishot
-	#y_experiment_64 = y_experiment
-	#arb_gamma_distrbution_64 = arb_gamma_distrbution
-
-	#for i in range(1,num_shots):
-	#	y_experiment = np.concatenate((y_experiment, y_experiment_64))
-	#	arb_gamma_distrbution = np.concatenate((arb_gamma_distrbution, arb_gamma_distrbution_64), axis=1)
 
 	# Applying the ML model to reconstruct the gamma distribution
 	output = model(tf.convert_to_tensor([y_experiment]))
@@ -192,9 +182,9 @@ def gamma_dist_pred_and_plot(energy_bin, dist = np.zeros(shape=(1,64))):
 	scale_factor = 1 # why
 
 	# Plotting the ML guess (with the scale_factor correction) with the original gamma distribution
-	gamma_dist_plot(x*scale_factor, arb_gamma_distrbution[0])
+	gamma_dist_plot_2(x*scale_factor, arb_gamma_distrbution[0])
 
-def gamma_dist_plot(prediction, true):
+def gamma_dist_plot_1(prediction, true):
 	x = range(0, 64)
 	plot.figure().set_figwidth(6.4)
 	#qr_guess = recover_energy_dist(R, np.dot(prediction, R))
@@ -205,6 +195,20 @@ def gamma_dist_plot(prediction, true):
 	plot.xlabel("Energy Bin")
 	plot.ylabel("Number of Photons")
 	plot.yscale("log")
+	plot.legend()
+
+def gamma_dist_plot_2(prediction, true):
+	x = np.linspace(10**-2, 10, 64)
+	plot.figure().set_figwidth(6.4)
+	#qr_guess = recover_energy_dist(R, np.dot(prediction, R))
+	plot.step(x, prediction, label = "Model based prediction")
+	#plot.plot(qr_guess[0], label = "QR based prediction")
+	plot.step(x, true, label = "Gamma distribution")
+	plot.title("Comparison of Gamma Energy Distributions")
+	plot.xlabel("Gamma Energy (GeV)")
+	plot.ylabel("Photon Density (1/GeV)")
+	plot.yscale("log")
+	#plot.xscale("log")
 	plot.legend()
 
 #Implementation of the QR decomposition-based reconstruction method

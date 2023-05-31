@@ -28,9 +28,13 @@ test_spectra = np.zeros(shape = (1, 64), dtype = object)
 energy_bins = f["num_events"][:]
 noise_level = 1e04
 
-multi_shot_indices = np.linspace(0, 64, num_shots+1)
-for i in range(0, len(multi_shot_indices)):
-    multi_shot_indices[i] = np.round(multi_shot_indices[i])
+indices_64 = np.linspace(0, 64, num_shots+1)
+for i in range(0, len(indices_64)):
+    indices_64[i] = np.round(indices_64[i])
+
+indices_128 = np.linspace(0, 128, num_shots+1)
+for i in range(0, len(indices_128)):
+    indices_128[i] = np.round(indices_128[i])
 
 # Loading in values for train_spectra and R matrix
 j = 0
@@ -40,11 +44,9 @@ for i in range(0, 64):
 	for k in range(0, detector_bin_count):
 		vector.append(detection_factor*sum(data[i][k])/1e09)
 	R[i] = vector
-	if (i != 0 and i in multi_shot_indices):
+	if (i != 0 and i in indices_64):
 		j += 1
 	train_hits[i,:,j] = np.dot(train_spectra[i][i], R[i])
-	#for s in range (0, num_shots):
-	#	train_hits[i,:,s] = np.dot(train_spectra[i][i], R[i])
 
 # The following loop randomly generates num_of_training_cases training cases by randomly creating photon distributions and calculating 
 # the associated electron-positron hits to provide to the model as training data.
@@ -66,8 +68,17 @@ for i in range(0, num_of_training_cases):
 	calculated_hits[0] = np.dot(arb_gamma_dist[0], R)  
 	calculated_hits = calculated_hits + np.random.poisson(noise_level, detector_bin_count) #Adding some noise to the data
 
+	#FIX THIS
+	j = 0
+	vector = np.zeros((1, 128, num_shots))
+	for i in range(0, 128):
+		if (i in indices_128 and i != 0):
+			j += 1
+		vector[0,i,j] = calculated_hits[0][i]
+	train_hits = np.concatenate((train_hits, vector))
+
 	# Adding the simulated hits and gamma distribution to the training data
-	train_hits  = np.concatenate((train_hits, calculated_hits))
+	print("train_hits shape: ", train_hits.shape)
 	train_spectra = np.concatenate((train_spectra, arb_gamma_dist))
 
 # The following loop is creating testing data for the model. 
@@ -84,25 +95,22 @@ for i in range(0, test_cases):
 	calculated_hits[0] = np.dot(arb_gamma_dist[0], R)
 	#calculated_hits = calculated_hits + np.random.poisson(noise_level, detector_bin_count) #Adding some noise to the data
 	
-	test_hits  = np.concatenate((test_hits, calculated_hits))
+	j = 0
+	vector = np.zeros((1, 128, num_shots))
+	for i in range(0, 128):
+		if (i in indices_128 and i != 0):
+			j += 1
+		vector[0,i,j] = calculated_hits[0][i]
+	test_hits  = np.concatenate((test_hits, vector))
 	test_spectra = np.concatenate((test_spectra, arb_gamma_dist))
-
-# Adapting data for num_shots shots
-# *_hits.shape = (128, num_shots); *_spectra.shape = (64,)
-#print(train_hits.shape, train_spectra.shape, test_hits.shape, test_spectra.shape)
 
 #train_hits = [train_hits]
 test_hits = [test_hits]
 train_hits_temp = train_hits
 test_hits_temp = test_hits
-#for i in range(1, num_shots):
-#    train_hits = np.concatenate((train_hits, train_hits_temp), axis=0)
-#    test_hits = np.concatenate((test_hits, test_hits_temp), axis=0)
-#train_hits = np.swapaxes(train_hits, 0, 1)
-#train_hits = np.swapaxes(train_hits, 1, 2)
 test_hits = np.swapaxes(test_hits, 0, 1)
 test_hits = np.swapaxes(test_hits, 1, 2)
-print(train_hits.shape, train_spectra.shape, test_hits.shape, test_spectra.shape)
+#print(train_hits.shape, train_spectra.shape, test_hits.shape, test_spectra.shape)
 
 # Converting the arrays into formats the model can process
 train_hits = tf.convert_to_tensor(train_hits, dtype=float)

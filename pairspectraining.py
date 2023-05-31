@@ -1,5 +1,4 @@
 # plot photon density (1/GeV) against energy (GeV)
-# change shots
 
 # Importing relevant libraries
 import tensorflow as tf
@@ -24,11 +23,13 @@ from model import model
 e_bins = np.indices((1,64))
 
 if 0:
-    detectors = range(0, 128)
-    for i in range (0, 63):
-        plot.step(detectors, train_hits[i,:,2])
-else:
-    gamma_dist_pred_and_plot(e_bins[1][0])
+	detectors = range(0, 128)
+	for i in range (0, 63):
+		plot.step(detectors, train_hits[i,:,2])
+	plot.show()
+	quit()
+
+gamma_dist_pred_and_plot(e_bins[1][0])
 
 plot.show()
 quit()
@@ -83,7 +84,9 @@ gamma_dist = GeV * arb_gamma_distrbution[0]/dE
 qr_guess = recover_energy_dist(R, y_experiment)
 
 # Converting the experimental values into a reconstructed spectrum using the ML model
-output = model(tf.convert_to_tensor([y_experiment]))
+y_experiment = tf.convert_to_tensor([y_experiment])
+print("y_experiment.shape: ", y_experiment.shape)
+output = model(y_experiment)
 num_events = output[:]
 
 model_guess = num_events[0] 
